@@ -299,7 +299,7 @@ class ChatterboxTurboTTS:
         watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
 
-    def save_audio(self, fpath: Union[str, Path], wav: torch.Tensor):
+    def save_audio(self, fpath: Union[str, Path], wav: torch.Tensor, sample_rate=None):
         import soundfile as sf
         if isinstance(wav, torch.Tensor):
             wav = wav.detach().cpu().numpy()
@@ -308,4 +308,5 @@ class ChatterboxTurboTTS:
         if wav.ndim == 2 and wav.shape[0] == 1:
             wav = wav.squeeze(0)
             
-        sf.write(fpath, wav, self.sr)
+        sr = sample_rate if sample_rate is not None else self.sr
+        sf.write(fpath, wav, sr)
