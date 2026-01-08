@@ -2,6 +2,7 @@ import os
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import librosa
 import numpy as np
@@ -297,3 +298,14 @@ class ChatterboxTurboTTS:
         wav = wav.squeeze(0).detach().cpu().numpy()
         watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
+
+    def save_audio(self, fpath: Union[str, Path], wav: torch.Tensor):
+        import soundfile as sf
+        if isinstance(wav, torch.Tensor):
+            wav = wav.detach().cpu().numpy()
+        
+        # Handle shape (1, T) or (T,)
+        if wav.ndim == 2 and wav.shape[0] == 1:
+            wav = wav.squeeze(0)
+            
+        sf.write(fpath, wav, self.sr)
